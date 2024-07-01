@@ -44,9 +44,13 @@ func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string
 	xunfeiRequest.Parameter.Chat.MaxTokens = request.MaxTokens
 	xunfeiRequest.Payload.Message.Text = messages
 
-	if strings.HasPrefix(domain, "generalv3") {
+	if strings.HasPrefix(domain, "generalv3") || domain == "4.0Ultra" {
+		functions := make([]model.Function, len(request.Tools))
+		for i, tool := range request.Tools {
+			functions[i] = tool.Function
+		}
 		xunfeiRequest.Payload.Functions = &Functions{
-			Text: request.Tools,
+			Text: functions,
 		}
 	}
 
@@ -286,6 +290,8 @@ func apiVersion2domain(apiVersion string) string {
 		return "generalv3"
 	case "v3.5":
 		return "generalv3.5"
+	case "v4.0":
+		return "4.0Ultra"
 	}
 	return "general" + apiVersion
 }
